@@ -45,7 +45,9 @@ def create_app():
         return response
 
     from . import digitize
+    from . import documents
     app.register_blueprint(digitize.digitize)
+    app.register_blueprint(documents.documents)
     app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER')
 
     app.run(host='0.0.0.0')
