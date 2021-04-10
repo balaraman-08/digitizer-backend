@@ -1,7 +1,7 @@
-
-from flask import Blueprint, request, session, Response, abort, redirect, url_for
+from flask import Blueprint, request, session, Response, abort, jsonify
 from werkzeug.utils import secure_filename
 import os
+from . import extract
 
 digitize = Blueprint('digitize', __name__, url_prefix='/digitize')
 
@@ -32,4 +32,4 @@ def upload_and_extract():
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(os.getenv('UPLOAD_FOLDER'), filename))
-        return 'File Uploaded'
+        return jsonify(data=extract.extract_data(os.path.join(os.getenv('UPLOAD_FOLDER'), filename)))
