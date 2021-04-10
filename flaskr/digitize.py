@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from typing import List
 
 from flask import Blueprint, request, session, Response, abort, jsonify
 from werkzeug.utils import secure_filename
@@ -19,25 +20,26 @@ documentsCollection = db.documents
 # ----------------------------------------------------------------------------------------------------------
 
 # Utilty funtions ------------------------------------------------------------------------------------------
-def format_data(raw_data: pd.DataFrame, filename: str):
+def format_data(raw_data: List[pd.DataFrame], filename: str):
     formatted_data = {
         "filename": filename,
         "fields": [],
         "status": "extracted"
     }
-    for idx, row in raw_data.iterrows():
-        if row["text"].strip() != "":
-            formatted_data["fields"].append({
-                "extractedText": row["text"].strip(),
-                "correctedText": row["text"].strip(),
-                "conf": row["conf"],
-                "bounding_box": {
-                    "top": row["top"],
-                    "left": row["left"],
-                    "width": row["width"],
-                    "width": row["width"]
-                }
-            })
+    for data in raw_data:
+        for idx, row in data.iterrows():
+            if row["text"].strip() != "":
+                formatted_data["fields"].append({
+                    "extractedText": row["text"].strip(),
+                    "correctedText": row["text"].strip(),
+                    "conf": row["conf"],
+                    "bounding_box": {
+                        "top": row["top"],
+                        "left": row["left"],
+                        "width": row["width"],
+                        "width": row["width"]
+                    }
+                })
     formatted_data["timestamp"] = int(datetime.now().timestamp() * 1000)
     return formatted_data
 

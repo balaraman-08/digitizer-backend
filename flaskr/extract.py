@@ -47,7 +47,7 @@ def extract_data(image_path):
     #     "conf": dtype("int64"),
     #     "text": dtype("object"),
     # })
-    out = DataFrame()
+    out = []
     for idx, cnt in enumerate(contours):
         x, y, w, h = cv2.boundingRect(cnt)
 
@@ -58,10 +58,7 @@ def extract_data(image_path):
         print("[INFO] reading text...")
         text = pytesseract.image_to_data(
             cropped, output_type=Output.DATAFRAME, pandas_config={"keep_default_na": False, "skip_blank_lines": True})
+        out.append(text)
 
-        if (out.empty):
-            out = DataFrame(text)
-        else:
-            out.append(text)
     return out
 
