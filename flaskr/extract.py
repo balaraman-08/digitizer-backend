@@ -5,6 +5,8 @@ import json
 import cv2
 import pytesseract
 from pytesseract import Output
+from pandas import DataFrame
+from numpy import dtype
 
 def extract_data(image_path):
     pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSARACT_PATH")
@@ -25,7 +27,27 @@ def extract_data(image_path):
         dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     im2 = img.copy()
-    out = []
+    # out = DataFrame(
+    #     index=["level", "page_num", "block_num", "par_num", "line_num", "word_num", "left", "top", "width", "height", "conf", "text"], 
+    #     columns=["level", "page_num", "block_num", "par_num", "line_num", "word_num", "left", "top", "width", "height", "conf", "text"],
+    #     dtype=["int64", "int64", "int64", "int64", "int64", "int64", "int64", "int64", "int64", "int64", "int64", "object"]
+    #     )
+
+    # out = DataFrame({
+    #     "level": dtype("int64"),
+    #     "page_num": dtype("int64"),
+    #     "block_num": dtype("int64"),
+    #     "par_num": dtype("int64"),
+    #     "line_num": dtype("int64"),
+    #     "word_num": dtype("int64"),
+    #     "left": dtype("int64"),
+    #     "top": dtype("int64"),
+    #     "width": dtype("int64"),
+    #     "height": dtype("int64"),
+    #     "conf": dtype("int64"),
+    #     "text": dtype("object"),
+    # })
+    out = DataFrame()
     for idx, cnt in enumerate(contours):
         x, y, w, h = cv2.boundingRect(cnt)
 
@@ -36,6 +58,10 @@ def extract_data(image_path):
         print("[INFO] reading text...")
         text = pytesseract.image_to_data(
             cropped, output_type=Output.DATAFRAME, pandas_config={"keep_default_na": False, "skip_blank_lines": True})
-        out.append(text.to_json())
+
+        if (out.empty):
+            out = DataFrame(text)
+        else:
+            out.append(text)
     return out
 
